@@ -1,4 +1,7 @@
 public class App {
+
+    static final String INVALID_VALUE = "Invalid Value";
+
     public static void main(String[] args) {
         System.out.println("SecondsAndMinutesChallenge");
         getDurationString(65, 45);
@@ -20,10 +23,16 @@ public class App {
         printYearsAndDays(525600);
         printYearsAndDays(1051200);
         printYearsAndDays(561600);
+
+        System.out.println("Equality Printer");
+        printEqual(1, 1, 1); // "All numbers are equal"
+        printEqual(1, 1, 2); // "Neither all are equal or different"
+        printEqual(-1, -1, -1); // "Invalid Value"
+        printEqual(1, 2, 3); // "All the numbers are different"
     }
 
     public static void getDurationString(long minutes, long seconds) {
-        String answer = "Invalid Value";
+        String answer = INVALID_VALUE;
         if (minutes >= 0 && seconds >= 0 && seconds <= 59) {
             long hours = minutes / 60;
             minutes %= 60;
@@ -69,7 +78,7 @@ public class App {
 
     // Minutes to years and days calculator
     public static void printYearsAndDays(long minutes) {
-        String answer = "Invalid Value";
+        String answer = INVALID_VALUE;
         if (minutes >= 0) {
             long days = minutes / 60 / 24;
             long yrs = days / 365;
@@ -77,5 +86,29 @@ public class App {
             answer = minutes + " min = " + yrs + " y and " + dys + " d";
         }
         System.out.println(answer);
+    }
+
+    // Equality Printer
+    public static void printEqual(int int1, int int2, int int3) {
+        String answer = "";
+        if (int1 < 0 || int2 < 0 || int3 < 0){
+            answer = INVALID_VALUE;
+        } else if (int1 == int2 && int2 == int3) {
+            answer = "All numbers are equal";
+        } else if (int1 == int2 || int1 == int3 || int2 == int3) {
+            answer = "Neither all are equal or different";
+        } else {
+            answer = "All numbers are different";
+        }
+        System.out.println(answer);
+    }
+
+    // Playing Cat
+    public static boolean isCatPlaying(boolean summer, int temperature) {
+        boolean answer = false;
+        if ((temperature >= 25 && temperature <= 35) || (summer && temperature >= 25 && temperature <= 45)) {
+            answer = true;
+        } 
+        return answer;
     }
 }
