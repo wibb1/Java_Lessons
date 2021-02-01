@@ -33,6 +33,21 @@ public class App {
                 }
             }
         }
+        printAnswer("**3 and 5 challenge**");
+        int sum = 0;
+        int count2 = 0;
+        for (int i = 15; i <= 1000; i++) {
+            if (i % 3 == 0 && i % 5 == 0) {
+                printAnswer(i + " is divisible by 3 and 5");
+                count2++;
+                sum += i;
+                if (count2 >= 5)
+                    break;
+            }
+        }
+        printAnswer("Your total = " + sum);
+
+        printAnswer("**isOdd Coding Exercise**");
     }
 
     public static boolean isPrime(int n) {
@@ -49,6 +64,19 @@ public class App {
 
     public static double calculateIntres(double amount, double interestRate) {
         return (amount * (interestRate / 100));
+    }
+
+    public static boolean isOdd(int number){
+        return (number > 0 && (number % 2 != 0));
+    }
+
+    public static int sumOdd(int start, int end){
+        int sum = 0;
+        if (end < start || end == 0 || start == 0) return -1;
+        for (int i=start;i<=end;i++){
+            if (isOdd(i)==-1) sum+=i;
+        }
+        return sum;
     }
 
     public static void printAnswer(String answer) {
