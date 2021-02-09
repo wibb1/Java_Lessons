@@ -10,7 +10,7 @@ public class App {
         for (int i = 0; i < 5; i++) {
             printAnswer("Loop " + i + " hello");
         }
-        printAnswer("**Third Inerest Calculation**");
+        printAnswer("**Third Interest Calculation**");
         for (int i = 2; i < 9; i++) {
             printAnswer("10,000 at " + i + "% interest = " + String.format("%.2f", calculateIntres(10000, 6.0)));
         }
