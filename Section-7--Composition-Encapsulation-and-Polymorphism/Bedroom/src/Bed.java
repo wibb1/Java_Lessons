@@ -13,6 +13,10 @@ public class Bed {
     this.style = style;
   }
 
+  public String getStyle() {
+    return style;
+  }
+  
   public int getHeight() {
     return height;
   }
