@@ -25,11 +25,12 @@ public class Car extends Vehicle {
   public void accelerate(int speed) {
     setCurrentSpeed(speed);
     changeGear(speed);
+    System.out.println("Car.accelerate(): Current speed = " + getCurrentSpeed() + " and Current gear = " + getCurrentGear());
   }
-  public void accelerate(String speedChange){
-    setCurrentSpeed(speedChange);
+  public void accelerate(String speed){
+    setCurrentSpeed(speed);
     changeGear(getCurrentSpeed());
-    System.out.println("Car.accelerate(): Current speed = " + getCurrentDirection() + " and Current gear = " + getCurrentGear());
+    System.out.println("Car.accelerate(): Current speed = " + getCurrentSpeed() + " and Current gear = " + getCurrentGear());
   }
   private void changeGear(char gear) {
     char[] charArray = new char[] { '1', '2', '3', '4', '5', 'r', 'p' };
