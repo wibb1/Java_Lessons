@@ -52,34 +52,32 @@ public class App {
         System.out.println("\t 6 - To quit the application.");
     }
 
-    public static void addItem(){
-        System.out.println("Please enter the grocery item");
+    public static void addItem() {
+        System.out.println("Enter the grocery item name:");
         groceryList.addGroceryItem(scanner.nextLine());
     }
 
-    public static void modifyItem(){
-        System.out.println("Enter item number");
-        int itemNumber = scanner.nextInt();
-        scanner.nextLine();
-        System.out.println("Enter replacement item: ");
+    public static void modifyItem() {
+        System.out.println("Enter current item name:");
         String itemName = scanner.nextLine();
-        groceryList.modifyGroceryItem(itemNumber-1, itemName);
+        System.out.println("Enter replacement item name: ");
+        String replacementName = scanner.nextLine();
+        groceryList.modifyGroceryItem(itemName, replacementName);
     }
 
     public static void removeItem() {
-        System.out.println("Which item would you like to remove: ");
-        int itemNumber = scanner.nextInt();
-        scanner.nextLine();
-        groceryList.removeGroceryItem(itemNumber-1);
+        System.out.println("What item name would you like to remove: ");
+        String itemName = scanner.nextLine();
+        groceryList.removeGroceryItem(itemName);
     }
 
-    public static void searchForItem(){
+    public static void searchForItem() {
         System.out.println("Enter the item name: ");
-        String searchItem = scanner.nextLine();
-        if(groceryList.findItem(searchItem) != null){
-            System.out.println("Found " + searchItem + " in your shopping list");
+        String itemName = scanner.nextLine();
+        if (groceryList.onFile(itemName)) {
+            System.out.println("Found " + itemName + " in your shopping list");
         } else {
-            System.out.println(searchItem + " is not in the shopping list.");
+            System.out.println(itemName + " is not in the shopping list.");
         }
     }
 }
