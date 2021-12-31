@@ -1,10 +1,5 @@
 import java.util.ArrayList;
 
-// Branch:
-// Each Branch should have an arraylist of Customers
-// Need to be able to add a new customer and initial transaction amount.
-// Also needs to add additional transactions for that customer/branch
-
 public class Branch {
     private String branchName;
     private ArrayList<Customer> customers;
@@ -45,7 +40,7 @@ public class Branch {
         return customers;
     }
 
-    public Customer findCustomer(String name) {
+    private Customer findCustomer(String name) {
         for (int i = 0; i < customers.size(); i++) {
             Customer customer = this.customers.get(i);
             if (customer.getName().equals(name)) {

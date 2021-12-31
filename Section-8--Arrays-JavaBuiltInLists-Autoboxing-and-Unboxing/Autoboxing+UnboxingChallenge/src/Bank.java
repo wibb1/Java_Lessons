@@ -9,11 +9,6 @@ public class Bank {
         this.branches = new ArrayList<Branch>();
     }
 
-    // There should be a Bank class
-    // It should have an arraylist of Branches
-
-    // Bank:
-    // Add a new branch
     public boolean addBranch(String branchName) {
         if (findBranch(branchName) == null) {
             this.branches.add(new Branch(branchName));
@@ -23,7 +18,6 @@ public class Bank {
         return false;
     }
 
-    // Add a customer to that branch with initial transaction
     public boolean addCustomer(String branchName, String customerName, double transaction) {
         Branch currentBranch = findBranch(branchName);
         if (findBranch(branchName) != null) {
@@ -33,7 +27,6 @@ public class Bank {
         return false;
     }
 
-    // Add a transaction for an existing customer for that branch
     public boolean addCustomerTransaction(String branchName, String customerName, double transaction) {
         Branch branch = findBranch(branchName);
         if (branch != null) {
@@ -43,13 +36,7 @@ public class Bank {
         return false;
     }
 
-    // Show a list of customers for a particular branch and optionally a list
-    // of their transactions
-    public void printListOfCustomers(String branchName) {
-
-    }
-
-    public Branch findBranch(String name) {
+    private Branch findBranch(String name) {
         for (int i = 0; i < this.branches.size(); i++) {
             Branch branch = this.branches.get(i);
             if (branch.getBranchName().equals(name)) {
@@ -88,12 +75,5 @@ public class Bank {
         } else {
             return false;
         }
-
     }
-
-    // Demonstration autoboxing and unboxing in your code
-    // Hint: Transactions
-    // Add data validation.
-    // e.g. check if exists, or does not exist, etc.
-    // Think about where you are adding the code to perform certain actions
 }
