@@ -5,11 +5,22 @@ import java.util.Objects;
 import java.util.Set;
 
 public final class HeavenlyBody {
+    private final int bodyType;
     private final String name;
     private final Double orbitalPeriod;
     private final Set<HeavenlyBody> satellites;
 
-    public HeavenlyBody(String name, Double orbitalPeriod) {
+    public enum BodyTypes {
+        STAR,
+        PLANET,
+        DWARF_PLANET,
+        MOON,
+        COMET,
+        ASTEROID
+    }
+
+    public HeavenlyBody(int bodyType, String name, Double orbitalPeriod) {
+        this.bodyType = bodyType;
         this.name = name;
         this.orbitalPeriod = orbitalPeriod;
         this.satellites = new HashSet<>();
@@ -17,6 +28,10 @@ public final class HeavenlyBody {
 
     public String getName() {
         return name;
+    }
+
+    public int getBodyType() {
+        return bodyType;
     }
 
     public Double getOrbitalPeriod() {
@@ -32,18 +47,15 @@ public final class HeavenlyBody {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        System.out.println("obj.getClass() is " + obj.getClass());
-        System.out.println("this.getClass() is " + this.getClass());
-        if (obj == null || getClass() != obj.getClass()) return false;
-        HeavenlyBody that = (HeavenlyBody) obj;
-        return Objects.equals(getName(), that.getName());
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        HeavenlyBody that = (HeavenlyBody) o;
+        return Objects.equals(getBodyType(), that.getBodyType()) && Objects.equals(getName(), that.getName());
     }
 
     @Override
     public int hashCode() {
-        System.out.println("hashCode Called");
-        return Objects.hash(getName().toUpperCase()) + 57;
+        return Objects.hash(getBodyType(), getName());
     }
 }
