@@ -1,3 +1,5 @@
 .DS_Store
 *.iml
 *.xml
+*.class
+Section-12--JavaCollections/Section-12--Sets-and-HashSet/out/production/Section12--Sets-and-HashSet/com/willcampbell/SetChallenge.class
