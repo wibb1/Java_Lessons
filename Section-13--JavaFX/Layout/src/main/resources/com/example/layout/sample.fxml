@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.GridPane?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<GridPane fx:controller="com.example.layout.Controller"
+          xmlns:fx="http://javafx.com/fxml" alignment="top_center" hgap="10" vgap="10"
+          gridLinesVisible="true" >
+    <padding>
+        <Insets top="10"/>
+        <Insets bottom="15"/>
+    </padding>
+<!--    <columnConstraints>-->
+<!--        <ColumnConstraints percentWidth="50"/>-->
+<!--        <ColumnConstraints percentWidth="50"/>-->
+<!--    </columnConstraints>-->
+    <Button text="Button One" GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.halignment="RIGHT"/>
+    <Button text="Button Two"  GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+    <Button text="Button Three"  GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+    <Button text="Really Long Button Four - more text to make it longer" GridPane.rowIndex="3" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
+    <Button text="Button Five" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+</GridPane>
