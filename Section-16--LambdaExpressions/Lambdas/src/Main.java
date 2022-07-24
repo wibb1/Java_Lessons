@@ -94,35 +94,14 @@ interface UpperConcat {
 
 class AnotherClass {
     public String doSomething() {
-//        System.out.println("The AnotherClass class's name is: " + getClass().getSimpleName());
-//        return Main.doStringStuff(new UpperConcat() {
-//            @Override
-//            public String upperAndConcat(String s1, String s2) {
-//                System.out.println("The anonymous class's name is: " + getClass().getSimpleName());
-//                return s1.toUpperCase(Locale.ROOT) + s2.toUpperCase(Locale.ROOT);
-//            }
-//        }, "String 1", "String 2");
-//        UpperConcat uc = (s1, s2) -> {
-//            System.out.println("The Lambdas expression's name is: " + getClass().getSimpleName());
-//            String result = s1.toUpperCase(Locale.ROOT)+s2.toUpperCase(Locale.ROOT);
-//            return result;
-//        };
+        UpperConcat uc = (s1, s2) -> {
+            System.out.println("The Lambdas expression's name is: " + getClass().getSimpleName());
+            String result = s1.toUpperCase(Locale.ROOT)+s2.toUpperCase(Locale.ROOT);
+            return result;
+        };
         int count = 0;
-        {
-            UpperConcat uc = new UpperConcat() {
-                @Override
-                public String upperAndConcat(String s1, String s2) {
-                    return s1.toUpperCase(Locale.ROOT) + s2.toUpperCase(Locale.ROOT);
-                }
-            };
 
-            System.out.println("The AnotherClass class's name is: " + getClass().getSimpleName());
-
-            count++;
-            System.out.println("count is: " + count);
-            return Main.doStringStuff(uc, "String1", "String 2");
-        }
-
-//        The Lambda expression is treated like a nested block of code not a instantiation of a class
+        System.out.println("The AnotherClass class's name is: " + getClass().getSimpleName());
+        return Main.doStringStuff(uc, "String1", "String 2");
     }
 }
