@@ -2,59 +2,37 @@ import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
-        new Thread(() -> {
-            System.out.println("Printing from the runnable");
-            System.out.println("Line 2");
-            System.out.format("This is line %d\n\n", 3);
-        }).start();
-
-        List<Employee> employees = new ArrayList<>();
 
         Employee john = new Employee("John", 15);
         Employee tim = new Employee("Tim", 200);
         Employee jack = new Employee("Jack", 12);
         Employee jill = new Employee("Jill", 12);
 
+        List<Employee> employees = new ArrayList<>();
         employees.add(jack);
         employees.add(jill);
         employees.add(john);
         employees.add(tim);
 
-//        Full Code Expression
-//        Collections.sort(employees, new Comparator<Employee>() {
-//            @Override
-//            public int compare(Employee employee1, Employee employee2) {
-//                return employee1.getName().compareTo(employee2.getName());
-//            }
-//        });
-//      Lambda Expression - with inferred type (don't need to use Employee)
-//        Collections.sort(employees, (employee1, employee2) -> employee1.getName().compareTo(employee2.getName()));
-//
-//      Further simplification using just Comparator
-//      Collections.sort(employees, Comparator.comparing(Employee::getName));
+        employees.forEach(employee -> {
+            System.out.println(employee.getName());
+            System.out.println(employee.getAge());
+        });
 //
 //        for (Employee employee : employees) {
 //            System.out.println(employee.getName());
+//            new Thread(() -> System.out.println(employee.getAge())).start();
 //        }
 //
-//        String sillyString = doStringStuff(new UpperConcat() {
-//            @Override
-//            public String upperAndConcat(String s1, String s2) {
-//                return s1.toUpperCase() + s2.toUpperCase();
-//            }
-//        }, employees.get(0).getName(), employees.get(1).getName());
-//        System.out.println(sillyString);
+//        System.out.println("******************************************");
 //
-//        UpperConcat uc = (String s1, String s2) -> {
-//            String result = s1.toUpperCase(Locale.ROOT) + s2.toUpperCase(Locale.ROOT);
-//            return result;
-//        };
-//        String sillyString = doStringStuff(uc, employees.get(0).getName(), employees.get(1).getName());
-//        System.out.println(sillyString);
-
-        AnotherClass anotherClass = new AnotherClass();
-        String s = anotherClass.doSomething();
-        System.out.println(s);
+//        for (int i = 0; i < employees.size(); i++) {
+//            System.out.println(employees.get(i).getName());
+//            // have to set the employee instance to ensure it does not change =>
+//            // can't use employees.get(i).getAge() within the Lambda
+//            Employee employee = employees.get(i);
+//            new Thread(() -> System.out.println(employee.getAge())).start();
+//        }
     }
 
     public final static String doStringStuff(UpperConcat uc, String s1, String s2) {
@@ -94,14 +72,19 @@ interface UpperConcat {
 
 class AnotherClass {
     public String doSomething() {
+        int i = 0;
+
         UpperConcat uc = (s1, s2) -> {
             System.out.println("The Lambdas expression's name is: " + getClass().getSimpleName());
-            String result = s1.toUpperCase(Locale.ROOT)+s2.toUpperCase(Locale.ROOT);
+            System.out.format("i in the lambda expression is: %d\n\n", i);
+            String result = s1.toUpperCase(Locale.ROOT) + s2.toUpperCase(Locale.ROOT);
             return result;
         };
-        int count = 0;
 
         System.out.println("The AnotherClass class's name is: " + getClass().getSimpleName());
         return Main.doStringStuff(uc, "String1", "String 2");
+
     }
+
+
 }
