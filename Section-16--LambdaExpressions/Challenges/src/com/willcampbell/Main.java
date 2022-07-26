@@ -1,9 +1,10 @@
 package com.willcampbell;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class Main {
 
@@ -37,11 +38,41 @@ public class Main {
         String supplierResult = iLoveJava.get();
         System.out.println(supplierResult);
 
-//        Challenge #8 - when can we use a Lambda to implement an interface?
-//      An interface needs to be a functional interface and have only one method that must be implemented by the lambda
+//      Challenge #8
+//      1. - when can we use a Lambda to implement an interface?
+//        An interface needs to be a functional interface and have only one method that must be implemented by the lambda
+//      2. - can we use a lambda function to implement the Callable interface?
+//        Yes it only has one method that must be implemented - call()
+//      3. - is Comparator interface functional
+////      Comparator is functional because only compare() must be implemented
 
-//    Challenge #9 - can we use a lambda function to implement the Callable interface?
-//        yes it only has one method that must be implemented
+//      Challenge #9&10&11
+        List<String> topNames2015 = Arrays.asList("Amelia", "Olivia", "emily", "Isla", "Ava", "oliver", "Jack", "Charlie", "harry", "Jacob");
+        topNames2015
+                .stream()
+                .map(s -> s.substring(0, 1).toUpperCase(Locale.ROOT) + s.substring(1))
+                .sorted().forEach(System.out::println);
+        System.out.println("====================================");
+
+//    Challenge #12
+        System.out.println(
+                topNames2015
+                        .stream()
+                        .map(s -> s.substring(0, 1).toUpperCase(Locale.ROOT) + s.substring(1))
+                        .filter(s -> s.startsWith("A"))
+                        .count()
+        );
+        System.out.println("====================================");
+
+//        Challenge #13, 14 & 15 - need to add a terminal operator to his coe as below to print the values in the peek call
+
+        List<String> newList = topNames2015
+                .stream()
+                .map(s -> s.substring(0, 1).toUpperCase(Locale.ROOT) + s.substring(1))
+                .peek(System.out::println)
+                .sorted(String::compareTo)
+                .collect(Collectors.toList());
+        System.out.println("====================================");
 
     }
 
