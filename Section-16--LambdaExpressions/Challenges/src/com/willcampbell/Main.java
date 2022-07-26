@@ -37,7 +37,11 @@ public class Main {
         String supplierResult = iLoveJava.get();
         System.out.println(supplierResult);
 
-//        Challenge #8
+//        Challenge #8 - when can we use a Lambda to implement an interface?
+//      An interface needs to be a functional interface and have only one method that must be implemented by the lambda
+
+//    Challenge #9 - can we use a lambda function to implement the Callable interface?
+//        yes it only has one method that must be implemented
 
     }
 
