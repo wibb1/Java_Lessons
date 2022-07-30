@@ -1,8 +1,8 @@
 package com.willcampbell.model;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DataSource {
     public static final String DB_NAME = "music.db";
@@ -29,20 +29,59 @@ public class DataSource {
             conn = DriverManager.getConnection(CONNECTION_STRING);
             return true;
         } catch (SQLException e) {
-            System.out.println("Could not connect to database: " + e.getMessage());
-            e.printStackTrace();
+            printSQLErrorMessage(e, "Could not connect to database:");
             return false;
         }
     }
 
     public void close() {
         try {
-            if(conn !=null){
+            if (conn != null) {
                 conn.close();
             }
         } catch (SQLException e) {
-            System.out.println("Could not disconnect to database: " + e.getMessage());
-            e.printStackTrace();
+            printSQLErrorMessage(e, "Could not disconnect to database:");
         }
+    }
+
+    public List<Artist> queryArtists() {
+        Statement statement = null;
+        ResultSet resultSet = null;
+
+        try {
+            statement = conn.createStatement();
+            resultSet = statement.executeQuery("SELECT * FROM " + TABLE_ARTISTS);
+            List<Artist> artists = new ArrayList<>();
+            while (resultSet.next()) {
+                Artist artist = new Artist();
+                artist.setId(resultSet.getInt(COLUMN_ARTIST_ID));
+                artist.setName(resultSet.getString(COLUMN_ARTIST_NAME));
+                artists.add(artist);
+            }
+            return artists;
+        } catch (SQLException e) {
+            printSQLErrorMessage(e, "Query failed:");
+            return null;
+        } finally {
+            try {
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+            } catch (SQLException e) {
+                printSQLErrorMessage(e, "Error closing resultSet:");
+            }
+            try {
+                if (statement != null) {
+                    statement.close();
+                }
+            } catch (SQLException e) {
+                printSQLErrorMessage(e, "Could not close statement:");
+            }
+        }
+    }
+
+    private static void printSQLErrorMessage(SQLException e, String message) {
+        System.out.println(message + " " + e.getMessage());
+        e.printStackTrace();
     }
 }
