@@ -4,7 +4,7 @@ public class Artist {
     private int id;
     private String name;
 
-    public int get_id() {
+    public int getId() {
         return id;
     }
 
