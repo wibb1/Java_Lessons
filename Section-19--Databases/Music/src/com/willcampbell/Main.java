@@ -5,9 +5,10 @@ import com.willcampbell.model.Artist;
 import com.willcampbell.model.DataSource;
 import com.willcampbell.model.Song;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static com.willcampbell.model.QueryBuilder.ASC_ORDER_BY;
 
 public class Main {
     public static void main(String[] args) {
@@ -15,16 +16,15 @@ public class Main {
         String artistName = "Metallica";
         String albumName = "Ride the Lightning";
         String songName = "For Whom the Bell Tolls";
-        List<Artist> artists = new ArrayList<>();
 
-        DataSource dataSource = new DataSource();
-        if (!dataSource.open()) {
+        DataSource myDataSource = new DataSource();
+        if (!myDataSource.open()) {
             System.out.println("Can't open datasource");
             return;
         }
 //      TODO - queryAllArtists
         createHeader("queryAllArtists");
-        artists = dataSource.queryAllArtists();
+        List<Artist> artists = myDataSource.queryAllArtists(ASC_ORDER_BY);
         if (artists == null) {
             System.out.println("No Artists");
             return;
@@ -34,9 +34,9 @@ public class Main {
             System.out.println("ID: " + artist.getId() + " || Name: " + artist.getName());
         }
 
-//      TODO - findAlbumsByArtist -- need to fix
+//      TODO - findAlbumsByArtist
         createHeader("findAlbumsByArtist");
-        List<Album> albums = dataSource.findAlbumsByArtist(artistName);
+        List<Album> albums = myDataSource.findAlbumsByArtist(artistName);
 
         if (albums == null) {
             System.out.println("No Such Artist");
@@ -50,7 +50,7 @@ public class Main {
 
 //      TODO - findSongsByAlbum
         createHeader("findSongsByAlbum");
-        List<Song> songs = dataSource.findSongsByAlbum(albumName);
+        List<Song> songs = myDataSource.findSongsByAlbum(albumName);
 
         if (songs == null) {
             System.out.println("No Such Album");
@@ -61,9 +61,9 @@ public class Main {
             System.out.println("Title: " + song.getTitle() + " || Track: " + song.getTrack() + " || ID: " + song.getId());
         });
 
-//      TODO - findArtistByAlbum || need to fix
+//      TODO - findArtistByAlbum
         createHeader("findArtistByAlbum");
-        artists = dataSource.findArtistByAlbum(albumName);
+        artists = myDataSource.findArtistByAlbum(albumName);
 
         if (artists == null) {
             System.out.println("No Such Artists");
@@ -74,9 +74,9 @@ public class Main {
             System.out.println("Artist Name: " + artist.getName() + " || Artist ID: " + artist.getId());
         });
 
-//      TODO - findAlbumBySong || need to fix
+//      TODO - findAlbumBySong
         createHeader("findAlbumBySong");
-        albums = dataSource.findAlbumBySong(songName);
+        albums = myDataSource.findAlbumBySong(songName);
 
         if (albums == null) {
             System.out.println("No Albums");
@@ -89,7 +89,7 @@ public class Main {
 
 //      TODO - findArtistAlbumTrackBySong
         createHeader("findArtistAlbumTrackBySong");
-        List<Map<String, List<String>>> songList = dataSource.findArtistAlbumTrackBySong(songName);
+        List<Map<String, List<String>>> songList = myDataSource.findArtistAlbumTrackBySong(songName);
         if (songList == null) {
             System.out.println("No Such Song");
             return;
@@ -107,7 +107,7 @@ public class Main {
                     " || Album Name: " + songInfo.get(songName).get(1) + " || Track No.: " + songInfo.get(songName).get(2));
         });
 
-        dataSource.close();
+        myDataSource.close();
     }
 
 /**    Private methods */

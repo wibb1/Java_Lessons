@@ -6,34 +6,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.willcampbell.model.QueryBuilder.*;
+
 public class DataSource {
     public static final String DB_NAME = "music.db";
     public static final String CONNECTION_LOCATION = "D:\\Coding\\GitHub\\Java_Lessons\\Section-19--Databases\\Music\\";
     public static final String CONNECTION_STRING = "jdbc:sqlite:" + CONNECTION_LOCATION + DB_NAME;
-
-    public static final String TABLE_ALBUMS = "albums";
-    public static final String COLUMN_ALBUM_ID = "_id";
-    public static final String COLUMN_ALBUM_NAME = "name";
-    public static final String COLUMN_ALBUM_ARTIST = "artist";
-    public static final int INDEX_ALBUM_ID = 1;
-    public static final int INDEX_ALBUM_NAME = 2;
-    public static final int INDEX_ALBUM_ARTIST = 3;
-
-    public static final String TABLE_ARTISTS = "artists";
-    public static final String COLUMN_ARTIST_ID = "_id";
-    public static final String COLUMN_ARTIST_NAME = "name";
-    public static final int INDEX_ARTIST_ID = 1;
-    public static final int INDEX_ARTIST_NAME = 2;
-
-    public static final String TABLE_SONGS = "songs";
-    public static final String COLUMN_SONG_ID = "_id";
-    public static final String COLUMN_SONG_TRACK = "track";
-    public static final String COLUMN_SONG_TITLE = "title";
-    public static final String COLUMN_SONG_ALBUM = "album";
-    public static final int INDEX_SONG_ID = 1;
-    public static final int INDEX_SONG_TRACK = 2;
-    public static final int INDEX_SONG_TITLE = 3;
-    public static final int INDEX_SONG_ALBUM = 4;
 
     private Connection conn;
 
@@ -60,17 +38,28 @@ public class DataSource {
     /**
      * returns information on all artists in the collection
      */
-    public List<Artist> queryAllArtists() {
+    public List<Artist> queryAllArtists(int sortOrder) {
+        StringBuilder sb = new StringBuilder("SELECT * FROM ");
+        sb.append(ARTISTS_TABLE);
+        if (sortOrder != NONE_ORDER_BY) {
+            sb.append(" ORDER BY ");
+            sb.append(NAME_ARTIST_COLUMN);
+            sb.append(" COLLATE NOCASE ");
+            if (sortOrder == DESC_ORDER_BY) {
+                sb.append("DESC");
+            } else {
+                sb.append("ASC");
+            }
+        }
 
         try (Statement statement = conn.createStatement();
-             ResultSet resultSet = statement.executeQuery(
-                     "SELECT * FROM " + TABLE_ARTISTS)) {
+             ResultSet resultSet = statement.executeQuery(sb.toString())) {
 
             List<Artist> artists = new ArrayList<>();
             while (resultSet.next()) {
                 Artist artist = new Artist();
-                artist.setId(resultSet.getInt(INDEX_ARTIST_ID));
-                artist.setName(resultSet.getString(INDEX_ARTIST_NAME));
+                artist.setId(resultSet.getInt(ID_ARTIST_INDEX));
+                artist.setName(resultSet.getString(NAME_ARTIST_INDEX));
                 artists.add(artist);
             }
             return artists;
@@ -86,17 +75,16 @@ public class DataSource {
      * @param artistName - the name of the artist
      */
     public List<Album> findAlbumsByArtist(String artistName) {
+        StringBuilder sb = new StringBuilder(QueryBuilder.getFindAlbumsByArtist(artistName));
+
         try (Statement statement = conn.createStatement();
-             ResultSet resultSet = statement.executeQuery(
-                     "SELECT * FROM " + TABLE_ALBUMS +
-                             " JOIN " + TABLE_ARTISTS + " ON " + TABLE_ARTISTS + "." + COLUMN_ARTIST_ID + "=" + TABLE_ALBUMS + "." + COLUMN_ALBUM_ARTIST
-                             + " WHERE " + TABLE_ARTISTS + "." + COLUMN_ARTIST_NAME + "='" + artistName + "'")) {
+             ResultSet resultSet = statement.executeQuery(sb.toString())) {
             List<Album> albums = new ArrayList<>();
             while (resultSet.next()) {
                 Album album = new Album();
-                album.setArtist(resultSet.getString(INDEX_ALBUM_ARTIST));
-                album.setId(resultSet.getInt(INDEX_ARTIST_ID));
-                album.setName(resultSet.getString(INDEX_ARTIST_NAME));
+                album.setArtist(resultSet.getString(ARTIST_ALBUM_INDEX));
+                album.setId(resultSet.getInt(ID_ARTIST_INDEX));
+                album.setName(resultSet.getString(NAME_ARTIST_INDEX));
                 albums.add(album);
             }
             return albums;
@@ -112,19 +100,16 @@ public class DataSource {
      * @param albumName - the name of the album
      */
     public List<Song> findSongsByAlbum(String albumName) {
+        StringBuilder sb = new StringBuilder(QueryBuilder.getFindSongsByAlbum(albumName));
         try (Statement statement = conn.createStatement();
-             ResultSet resultSet = statement.executeQuery(
-                     "SELECT * FROM " + TABLE_SONGS +
-                             " JOIN " + TABLE_ALBUMS + " ON " +
-                             TABLE_SONGS + "." + COLUMN_SONG_ALBUM + "=" + TABLE_ALBUMS + "." + COLUMN_ALBUM_ID +
-                             " WHERE " + TABLE_ALBUMS + "." + COLUMN_ALBUM_NAME + "='" + albumName + "'")) {
+             ResultSet resultSet = statement.executeQuery(sb.toString())) {
             List<Song> songs = new ArrayList<>();
             while (resultSet.next()) {
                 Song song = new Song();
-                song.setAlbum(resultSet.getString(INDEX_SONG_ALBUM));
-                song.setId(resultSet.getInt(INDEX_SONG_ID));
-                song.setTitle(resultSet.getString(INDEX_SONG_TITLE));
-                song.setTrack(INDEX_SONG_TRACK);
+                song.setAlbum(resultSet.getString(ALBUM_SONG_INDEX));
+                song.setId(resultSet.getInt(ID_SONG_INDEX));
+                song.setTitle(resultSet.getString(TITLE_SONG_INDEX));
+                song.setTrack(TRACK_SONG_INDEX);
                 songs.add(song);
             }
             return songs;
@@ -140,17 +125,14 @@ public class DataSource {
      * @param albumName - name of the album
      */
     public List<Artist> findArtistByAlbum(String albumName) {
+        StringBuilder sb = new StringBuilder(QueryBuilder.getFindArtistByAlbum(albumName));
         try (Statement statement = conn.createStatement();
-             ResultSet resultSet = statement.executeQuery(
-                     "SELECT " + TABLE_ARTISTS + ".*" + " FROM " + TABLE_ARTISTS +
-                             " JOIN " + TABLE_ALBUMS + " ON " +
-                             TABLE_ARTISTS + "." + COLUMN_ARTIST_ID + "=" + TABLE_ALBUMS + "." + COLUMN_ALBUM_ARTIST +
-                             " WHERE " + TABLE_ALBUMS + "." + COLUMN_ALBUM_NAME + "='" + albumName + "'")) {
+             ResultSet resultSet = statement.executeQuery(sb.toString())) {
             List<Artist> artists = new ArrayList<>();
             while (resultSet.next()) {
                 Artist artist = new Artist();
-                artist.setName(resultSet.getString(INDEX_ARTIST_NAME));
-                artist.setId(resultSet.getInt(INDEX_ARTIST_ID));
+                artist.setName(resultSet.getString(NAME_ARTIST_INDEX));
+                artist.setId(resultSet.getInt(ID_ARTIST_INDEX));
                 artists.add(artist);
             }
             return artists;
@@ -168,18 +150,15 @@ public class DataSource {
      * @param songName - the song that you want the album of
      */
     public List<Album> findAlbumBySong(String songName) {
+        StringBuilder sb = new StringBuilder(QueryBuilder.getFindAlbumBySong(songName));
         try (Statement statement = conn.createStatement();
-             ResultSet resultSet = statement.executeQuery(
-                     "SELECT " + TABLE_ALBUMS + ".*" + " FROM " + TABLE_ALBUMS +
-                             " JOIN " + TABLE_SONGS + " ON "
-                             + TABLE_SONGS + "." + COLUMN_SONG_ALBUM + "=" + TABLE_ALBUMS + "." + COLUMN_ALBUM_ID +
-                             " WHERE " + TABLE_SONGS + "." + COLUMN_SONG_TITLE + "='" + songName + "'")) {
+             ResultSet resultSet = statement.executeQuery(sb.toString())) {
             List<Album> albums = new ArrayList<>();
             while (resultSet.next()) {
                 Album album = new Album();
-                album.setArtist(resultSet.getString(INDEX_ALBUM_ARTIST));
-                album.setId(resultSet.getInt(INDEX_ALBUM_ID));
-                album.setName(resultSet.getString(INDEX_ALBUM_NAME));
+                album.setArtist(resultSet.getString(ARTIST_ALBUM_INDEX));
+                album.setId(resultSet.getInt(ID_ALBUM_INDEX));
+                album.setName(resultSet.getString(NAME_ALBUM_INDEX));
                 albums.add(album);
             }
             return albums;
@@ -194,15 +173,9 @@ public class DataSource {
      * which artist recorded a song and include the album and track number
      */
     public List<Map<String, List<String>>> findArtistAlbumTrackBySong(String songName) {
+        StringBuilder sb = new StringBuilder(QueryBuilder.getFindArtistAlbumTrackBySong(songName));
         try (Statement statement = conn.createStatement();
-             ResultSet resultSet = statement.executeQuery("SELECT " +
-                     TABLE_ARTISTS + "." + COLUMN_ARTIST_NAME + ", " +
-                     TABLE_ALBUMS + "." + COLUMN_ALBUM_NAME + ", " +
-                     TABLE_SONGS + "." + COLUMN_SONG_TRACK +
-                     " FROM " + TABLE_SONGS +
-                     " JOIN " + TABLE_ALBUMS + " ON " + TABLE_SONGS + "." + COLUMN_SONG_ALBUM + "=" + TABLE_ALBUMS + "." + COLUMN_ALBUM_ID +
-                     " JOIN " + TABLE_ARTISTS + " ON " + TABLE_ARTISTS + "." + COLUMN_ARTIST_ID + "=" + TABLE_ALBUMS + "." + COLUMN_ALBUM_ARTIST +
-                     " WHERE " + TABLE_SONGS + "." + COLUMN_SONG_TITLE + "='" + songName + "'")) {
+             ResultSet resultSet = statement.executeQuery(sb.toString())) {
             List<Map<String, List<String>>> maps = new ArrayList<>();
             while (resultSet.next()) {
                 Map<String, List<String>> map = new HashMap<>();
