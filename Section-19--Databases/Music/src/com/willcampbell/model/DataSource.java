@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.willcampbell.model.QueryBuilder.*;
+import static com.willcampbell.model.QueryStringBuilder.*;
 
 public class DataSource {
     public static final String DB_NAME = "music.db";
@@ -37,20 +37,13 @@ public class DataSource {
 
     /**
      * returns information on all artists in the collection
+     *
+     * @param sortOrder QueryStringBuilder enum SORT_ORDER {NONE, ASC, DESC}
      */
-    public List<Artist> queryAllArtists(int sortOrder) {
+    public List<Artist> queryAllArtists(SORT_ORDER sortOrder) {
         StringBuilder sb = new StringBuilder("SELECT * FROM ");
         sb.append(ARTISTS_TABLE);
-        if (sortOrder != NONE_ORDER_BY) {
-            sb.append(" ORDER BY ");
-            sb.append(NAME_ARTIST_COLUMN);
-            sb.append(" COLLATE NOCASE ");
-            if (sortOrder == DESC_ORDER_BY) {
-                sb.append("DESC");
-            } else {
-                sb.append("ASC");
-            }
-        }
+        QueryStringBuilder.addSortOrderBy(sb, SORT_ORDER.ASC);
 
         try (Statement statement = conn.createStatement();
              ResultSet resultSet = statement.executeQuery(sb.toString())) {
@@ -75,7 +68,7 @@ public class DataSource {
      * @param artistName - the name of the artist
      */
     public List<Album> findAlbumsByArtist(String artistName) {
-        StringBuilder sb = new StringBuilder(QueryBuilder.getFindAlbumsByArtist(artistName));
+        StringBuilder sb = new StringBuilder(QueryStringBuilder.getFindAlbumsByArtist(artistName));
 
         try (Statement statement = conn.createStatement();
              ResultSet resultSet = statement.executeQuery(sb.toString())) {
@@ -100,7 +93,7 @@ public class DataSource {
      * @param albumName - the name of the album
      */
     public List<Song> findSongsByAlbum(String albumName) {
-        StringBuilder sb = new StringBuilder(QueryBuilder.getFindSongsByAlbum(albumName));
+        StringBuilder sb = new StringBuilder(QueryStringBuilder.getFindSongsByAlbum(albumName));
         try (Statement statement = conn.createStatement();
              ResultSet resultSet = statement.executeQuery(sb.toString())) {
             List<Song> songs = new ArrayList<>();
@@ -125,7 +118,7 @@ public class DataSource {
      * @param albumName - name of the album
      */
     public List<Artist> findArtistByAlbum(String albumName) {
-        StringBuilder sb = new StringBuilder(QueryBuilder.getFindArtistByAlbum(albumName));
+        StringBuilder sb = QueryStringBuilder.getFindArtistByAlbum(albumName);
         try (Statement statement = conn.createStatement();
              ResultSet resultSet = statement.executeQuery(sb.toString())) {
             List<Artist> artists = new ArrayList<>();
@@ -150,7 +143,7 @@ public class DataSource {
      * @param songName - the song that you want the album of
      */
     public List<Album> findAlbumBySong(String songName) {
-        StringBuilder sb = new StringBuilder(QueryBuilder.getFindAlbumBySong(songName));
+        StringBuilder sb = QueryStringBuilder.getFindAlbumBySong(songName);
         try (Statement statement = conn.createStatement();
              ResultSet resultSet = statement.executeQuery(sb.toString())) {
             List<Album> albums = new ArrayList<>();
@@ -173,25 +166,69 @@ public class DataSource {
      * which artist recorded a song and include the album and track number
      */
     public List<Map<String, List<String>>> findArtistAlbumTrackBySong(String songName) {
-        StringBuilder sb = new StringBuilder(QueryBuilder.getFindArtistAlbumTrackBySong(songName));
+        StringBuilder sb = QueryStringBuilder.getFindArtistAlbumTrackBySong(songName);
         try (Statement statement = conn.createStatement();
              ResultSet resultSet = statement.executeQuery(sb.toString())) {
-            List<Map<String, List<String>>> maps = new ArrayList<>();
-            while (resultSet.next()) {
-                Map<String, List<String>> map = new HashMap<>();
-                List<String> stringList = new ArrayList<>();
-                stringList.add(resultSet.getString(1));
-                stringList.add(resultSet.getString(2));
-                stringList.add(resultSet.getString(3));
-                map.put(songName, stringList);
-                maps.add(map);
-            }
+            List<Map<String, List<String>>> maps = buildResultsMap(resultSet, songName);
             return maps;
         } catch (SQLException e) {
             printSQLErrorMessage(e, "Unable to perform query");
             return null;
         }
     }
+
+    public void querySongMetaData() {
+        String sql = "SELECT * FROM " + SONGS_TABLE;
+
+        try (Statement statement = conn.createStatement();
+             ResultSet resultSet = statement.executeQuery(sql)) {
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            int numColumns = metaData.getColumnCount();
+            for (int i = 1; i < numColumns; i++) {
+                System.out.format("Column %d in the songs table is named %s\n", i, metaData.getColumnName(i));
+            }
+        } catch (SQLException e) {
+            printSQLErrorMessage(e, "querySongMetaData failed: ");
+        }
+    }
+
+    public int getCount(String table) {
+        String sql = "SELECT COUNT(*) count FROM " + table;
+        try (Statement statement = conn.createStatement();
+             ResultSet resultSet = statement.executeQuery(sql)) {
+            int count = resultSet.getInt("count");
+            System.out.printf("Count = %d\n", count);
+            return count;
+        } catch (SQLException e) {
+            printSQLErrorMessage(e, "Error in getCount:");
+            return -1;
+        }
+
+    }
+
+    public boolean createViewForSongArtists() {
+        try (Statement statement = conn.createStatement()
+        ) {
+            statement.execute(CREATE_ARTIST_FOR_SONG_VIEW);
+            return true;
+        } catch (SQLException e) {
+            printSQLErrorMessage(e, "Error in createViewForSongArtists: ");
+            return false;
+        }
+    }
+
+    public List<Map<String, List<String>>> querySongInfoView(String songName) {
+        StringBuilder sb = QueryStringBuilder.getQuerySongInfoView(songName);
+        try (Statement statement = conn.createStatement();
+             ResultSet resultSet = statement.executeQuery(sb.toString())) {
+            List<Map<String, List<String>>> maps = buildResultsMap(resultSet, songName);
+            return maps;
+        } catch (SQLException e) {
+            printSQLErrorMessage(e, "Unable to perform query");
+            return null;
+        }
+    }
+
 
     /**
      * @param e       - system error
@@ -200,5 +237,20 @@ public class DataSource {
     private static void printSQLErrorMessage(SQLException e, String message) {
         System.out.println(message + " " + e.getMessage());
         e.printStackTrace();
+    }
+
+    /** This would be easier with a new class, but I wanted to try working with a more complicated data structure */
+    private static List<Map<String, List<String>>> buildResultsMap(ResultSet resultSet, String songName) throws SQLException {
+        List<Map<String, List<String>>> maps = new ArrayList<>();
+        while (resultSet.next()) {
+            Map<String, List<String>> map = new HashMap<>();
+            List<String> stringList = new ArrayList<>();
+            stringList.add(resultSet.getString(1));
+            stringList.add(resultSet.getString(2));
+            stringList.add(resultSet.getString(3));
+            map.put(songName, stringList);
+            maps.add(map);
+        }
+        return maps;
     }
 }

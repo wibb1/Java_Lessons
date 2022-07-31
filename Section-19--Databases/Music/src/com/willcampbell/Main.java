@@ -1,14 +1,11 @@
 package com.willcampbell;
 
-import com.willcampbell.model.Album;
-import com.willcampbell.model.Artist;
-import com.willcampbell.model.DataSource;
-import com.willcampbell.model.Song;
+import com.willcampbell.model.*;
 
 import java.util.List;
 import java.util.Map;
 
-import static com.willcampbell.model.QueryBuilder.ASC_ORDER_BY;
+import static com.willcampbell.model.QueryStringBuilder.SORT_ORDER.ASC;
 
 public class Main {
     public static void main(String[] args) {
@@ -17,14 +14,14 @@ public class Main {
         String albumName = "Ride the Lightning";
         String songName = "For Whom the Bell Tolls";
 
-        DataSource myDataSource = new DataSource();
-        if (!myDataSource.open()) {
+        DataSource dataSource = new DataSource();
+        if (!dataSource.open()) {
             System.out.println("Can't open datasource");
             return;
         }
 //      TODO - queryAllArtists
         createHeader("queryAllArtists");
-        List<Artist> artists = myDataSource.queryAllArtists(ASC_ORDER_BY);
+        List<Artist> artists = dataSource.queryAllArtists(ASC);
         if (artists == null) {
             System.out.println("No Artists");
             return;
@@ -36,84 +33,102 @@ public class Main {
 
 //      TODO - findAlbumsByArtist
         createHeader("findAlbumsByArtist");
-        List<Album> albums = myDataSource.findAlbumsByArtist(artistName);
+        List<Album> albums = dataSource.findAlbumsByArtist(artistName);
 
         if (albums == null) {
             System.out.println("No Such Artist");
             return;
         }
         System.out.println("Artist: " + artistName);
-        albums.stream().forEach(album -> {
-            System.out.println("Album Name: " + album.getName() + " || ID: " + album.getId());
-        });
+        albums.forEach(album -> System.out.println("Album Name: " + album.getName() + " || ID: " + album.getId()));
 
 
 //      TODO - findSongsByAlbum
         createHeader("findSongsByAlbum");
-        List<Song> songs = myDataSource.findSongsByAlbum(albumName);
+        List<Song> songs = dataSource.findSongsByAlbum(albumName);
 
         if (songs == null) {
             System.out.println("No Such Album");
             return;
         }
         System.out.println("Album: " + albumName);
-        songs.stream().forEach(song -> {
-            System.out.println("Title: " + song.getTitle() + " || Track: " + song.getTrack() + " || ID: " + song.getId());
-        });
+        songs.forEach(song -> System.out.println("Title: " + song.getTitle() + " || Track: " + song.getTrack() + " || ID: " + song.getId()));
 
 //      TODO - findArtistByAlbum
         createHeader("findArtistByAlbum");
-        artists = myDataSource.findArtistByAlbum(albumName);
+        artists = dataSource.findArtistByAlbum(albumName);
 
         if (artists == null) {
             System.out.println("No Such Artists");
             return;
         }
         System.out.println("Album: " + albumName);
-        artists.stream().forEach(artist -> {
-            System.out.println("Artist Name: " + artist.getName() + " || Artist ID: " + artist.getId());
-        });
+        artists.forEach(artist -> System.out.println("Artist Name: " + artist.getName() + " || Artist ID: " + artist.getId()));
 
 //      TODO - findAlbumBySong
         createHeader("findAlbumBySong");
-        albums = myDataSource.findAlbumBySong(songName);
+        albums = dataSource.findAlbumBySong(songName);
 
         if (albums == null) {
             System.out.println("No Albums");
             return;
         }
         System.out.println("Song Name: " + songName);
-        albums.stream().forEach((album) -> {
-            System.out.println("Album Name: " + album.getName() + " || Album ID: " + album.getId() + " || Artist ID: " + album.getArtist());
-        });
+        albums.forEach((album) -> System.out.println("Album Name: " + album.getName() + " || Album ID: " + album.getId() + " || Artist ID: " + album.getArtist()));
 
 //      TODO - findArtistAlbumTrackBySong
         createHeader("findArtistAlbumTrackBySong");
-        List<Map<String, List<String>>> songList = myDataSource.findArtistAlbumTrackBySong(songName);
+        List<Map<String, List<String>>> songList = dataSource.findArtistAlbumTrackBySong(songName);
         if (songList == null) {
             System.out.println("No Such Song");
             return;
         }
-//        //TODO - As a for loop
-//        System.out.println("for loop");
-//        for (Map<String, List<String>> songInfo : songList) {
-//            System.out.println("Song Name: " + songName + " Artist Name: " + songInfo.get(songName).get(0) +
-//                    " Album Name: " + songInfo.get(songName).get(1) + " Track No.: " + songInfo.get(songName).get(2));
-//        }
-        //TODO - As a stream
-        System.out.println("Song Name: " + songName);
-        songList.stream().forEach((songInfo) -> {
-            System.out.println("Artist Name: " + songInfo.get(songName).get(0) +
-                    " || Album Name: " + songInfo.get(songName).get(1) + " || Track No.: " + songInfo.get(songName).get(2));
-        });
 
-        myDataSource.close();
+        printSongListMap(songList, songName);
+
+
+//      TODO - querySongMetaData
+
+        dataSource.querySongMetaData();
+        createHeader("querySongMetaData");
+        System.out.format("%d songs in the database. ", dataSource.getCount(QueryStringBuilder.SONGS_TABLE));
+
+        dataSource.createViewForSongArtists();
+
+//      TODO - querySongInfoView
+        createHeader("querySongInfoView");
+        songList = dataSource.querySongInfoView(songName);
+        if (songList == null) {
+            System.out.println("No Such Song");
+            return;
+        }
+
+        printSongListMap(songList, songName);
+
+
+
+
+
+
+
+
+
+
+        dataSource.close();
     }
+
+
 
 /**    Private methods */
     private static void createHeader(String headerText) {
         System.out.println("\n=============================\n" +
                 headerText +
                 "\n=============================\n");
+    }
+
+    private static void printSongListMap(List<Map<String, List<String>>> songList, String songName) {
+        System.out.println("Song Name: " + songName);
+        songList.forEach((songInfo) -> System.out.println("Artist Name: " + songInfo.get(songName).get(0) +
+                " || Album Name: " + songInfo.get(songName).get(1) + " || Track No.: " + songInfo.get(songName).get(2)));
     }
 }
