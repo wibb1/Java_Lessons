@@ -15,18 +15,24 @@ public class DataSource {
 
     private Connection conn;
 
+    private PreparedStatement querySongInfoView;
+
     public boolean open() {
         try {
             conn = DriverManager.getConnection(CONNECTION_STRING);
+            querySongInfoView = conn.prepareStatement(QUERY_VIEW_SONG_INFO_PREP);
             return true;
         } catch (SQLException e) {
-            printSQLErrorMessage(e, "Could not connect to database:");
+            printSQLErrorMessage(e, "Initial database connect failure:");
             return false;
         }
     }
 
     public void close() {
         try {
+            if(querySongInfoView != null) {
+                querySongInfoView.close();
+            }
             if (conn != null) {
                 conn.close();
             }
@@ -218,9 +224,9 @@ public class DataSource {
     }
 
     public List<Map<String, List<String>>> querySongInfoView(String songName) {
-        StringBuilder sb = QueryStringBuilder.getQuerySongInfoView(songName);
-        try (Statement statement = conn.createStatement();
-             ResultSet resultSet = statement.executeQuery(sb.toString())) {
+        try {
+            querySongInfoView.setString(1, songName);
+            ResultSet resultSet = querySongInfoView.executeQuery();
             List<Map<String, List<String>>> maps = buildResultsMap(resultSet, songName);
             return maps;
         } catch (SQLException e) {
@@ -229,6 +235,7 @@ public class DataSource {
         }
     }
 
+    /** PRIVATE METHODS */
 
     /**
      * @param e       - system error
@@ -239,7 +246,9 @@ public class DataSource {
         e.printStackTrace();
     }
 
-    /** This would be easier with a new class, but I wanted to try working with a more complicated data structure */
+    /**
+     * This would be easier with a new class, but I wanted to try working with a more complicated data structure
+     */
     private static List<Map<String, List<String>>> buildResultsMap(ResultSet resultSet, String songName) throws SQLException {
         List<Map<String, List<String>>> maps = new ArrayList<>();
         while (resultSet.next()) {

@@ -80,6 +80,11 @@ public class QueryStringBuilder {
             ALBUM_SONG_COLUMN + ", " + TRACK_SONG_COLUMN + " FROM " + ARTISTS_SONG_VIEW +
             " WHERE " + TITLE_SONG_COLUMN + "='";
 
+    public static final String QUERY_VIEW_SONG_INFO_PREP = "SELECT " + NAME_ARTIST_COLUMN + ", " +
+            ALBUM_SONG_COLUMN + ", " + TRACK_SONG_COLUMN + " FROM " + ARTISTS_SONG_VIEW +
+            " WHERE " + TITLE_SONG_COLUMN + "=?";
+
+
     /**
      * Methods
      */
@@ -119,7 +124,6 @@ public class QueryStringBuilder {
             }
         }
     }
-
 
     private static StringBuilder getQueryStringWithSingleInput(String input, String searchString) {
         StringBuilder sb = new StringBuilder(searchString);
