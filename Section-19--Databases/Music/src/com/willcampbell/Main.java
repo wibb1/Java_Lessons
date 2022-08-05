@@ -2,13 +2,14 @@ package com.willcampbell;
 
 import com.willcampbell.model.*;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
 import static com.willcampbell.model.QueryStringBuilder.SORT_ORDER.ASC;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException {
 
         String artistName = "Metallica";
         String albumName = "Ride the Lightning";
@@ -105,14 +106,7 @@ public class Main {
 
         printSongListMap(songList, songName);
 
-
-
-
-
-
-
-
-
+        dataSource.insertSong("Touch of Grey", "Gratefull Dead", "In the Dark", 1);
 
         dataSource.close();
     }

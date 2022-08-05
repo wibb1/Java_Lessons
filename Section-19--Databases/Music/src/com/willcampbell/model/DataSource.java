@@ -16,11 +16,25 @@ public class DataSource {
     private Connection conn;
 
     private PreparedStatement querySongInfoView;
+    private PreparedStatement insertIntoAlbums;
+    private PreparedStatement insertIntoSongs;
+    private PreparedStatement insertIntoArtists;
+    private PreparedStatement queryArtists;
+    private PreparedStatement queryAlbum;
+    private PreparedStatement querySong;
 
     public boolean open() {
         try {
             conn = DriverManager.getConnection(CONNECTION_STRING);
             querySongInfoView = conn.prepareStatement(QUERY_VIEW_SONG_INFO_PREP);
+            insertIntoArtists = conn.prepareStatement(INSERT_ARTIST, Statement.RETURN_GENERATED_KEYS);
+            insertIntoAlbums = conn.prepareStatement(INSERT_ALBUM, Statement.RETURN_GENERATED_KEYS);
+            insertIntoSongs = conn.prepareStatement(INSERT_SONG);
+            queryArtists = conn.prepareStatement(QUERY_ARTISTS);
+            queryAlbum = conn.prepareStatement(QUERY_ALBUM);
+            queryArtists = conn.prepareStatement(QUERY_ARTISTS);
+            queryAlbum = conn.prepareStatement(QUERY_ALBUM);
+            querySong = conn.prepareStatement(QUERY_SONG);
             return true;
         } catch (SQLException e) {
             printSQLErrorMessage(e, "Initial database connect failure:");
@@ -30,8 +44,23 @@ public class DataSource {
 
     public void close() {
         try {
-            if(querySongInfoView != null) {
+            if (queryArtists != null) {
+                queryArtists.close();
+            }
+            if (queryAlbum != null) {
+                queryAlbum.close();
+            }
+            if (querySongInfoView != null) {
                 querySongInfoView.close();
+            }
+            if (insertIntoSongs != null) {
+                insertIntoSongs.close();
+            }
+            if (insertIntoArtists != null) {
+                insertIntoArtists.close();
+            }
+            if (insertIntoAlbums != null) {
+                insertIntoAlbums.close();
             }
             if (conn != null) {
                 conn.close();
@@ -241,7 +270,7 @@ public class DataSource {
      * @param e       - system error
      * @param message - message that will be printed
      */
-    private static void printSQLErrorMessage(SQLException e, String message) {
+    private static void printSQLErrorMessage(Exception e, String message) {
         System.out.println(message + " " + e.getMessage());
         e.printStackTrace();
     }
@@ -261,5 +290,96 @@ public class DataSource {
             maps.add(map);
         }
         return maps;
+    }
+
+    private int insertArtist(String name) throws SQLException {
+        queryArtists.setString(1, name);
+        ResultSet resultSet = queryArtists.executeQuery();
+        if (resultSet.next()) {
+            return resultSet.getInt(1);
+        } else {
+            insertIntoArtists.setString(1, name);
+            int affectedRows = insertIntoArtists.executeUpdate();
+
+            if (affectedRows != 1) {
+                throw new SQLException("Could not insert into artists!");
+            }
+        }
+        ResultSet generatedKeys = insertIntoArtists.getGeneratedKeys();
+        if (generatedKeys.next()) {
+            return generatedKeys.getInt(1);
+        } else {
+            throw new SQLException("Could not get id for Artist");
+        }
+    }
+
+    private int insertAlbum(String name, int artistId) throws SQLException {
+        queryAlbum.setString(1, name);
+        ResultSet resultSet = queryAlbum.executeQuery();
+        if (resultSet.next()) {
+            return resultSet.getInt(1);
+        } else {
+            insertIntoAlbums.setString(1, name);
+            insertIntoAlbums.setInt(2, artistId);
+            int affectedRows = insertIntoAlbums.executeUpdate();
+
+            if (affectedRows != 1) {
+                throw new SQLException("Could not insert into albums!");
+            }
+        }
+        ResultSet generatedKeys = insertIntoAlbums.getGeneratedKeys();
+        if (generatedKeys.next()) {
+            return generatedKeys.getInt(1);
+        } else {
+            throw new SQLException("Could not get id for Albums");
+        }
+    }
+
+    public void insertSong(String title, String artist, String album, int track) throws SQLException {
+        try {
+            querySong.setString(1, title);
+
+            ResultSet resultSet = querySong.executeQuery();
+            if (resultSet.next()) {
+                System.out.println("Song already exists"); // this would need to check the artist and album as well
+            } else {
+
+                try {
+                    conn.setAutoCommit(false);
+
+                    int artistId = insertArtist(artist);
+                    int albumId = insertAlbum(album, artistId);
+                    insertIntoSongs.setInt(1, track);
+                    insertIntoSongs.setString(2, title);
+                    insertIntoSongs.setInt(3, albumId);
+
+                    int affectedRows = insertIntoSongs.executeUpdate();
+
+                    if (affectedRows == 1) {
+                        conn.commit();
+                    } else {
+                        throw new SQLException("The song insert failed");
+                    }
+
+                } catch (Exception e) {
+                    printSQLErrorMessage(e, "Insert song exception:");
+                    try {
+                        System.out.println("Performing rollback");
+                        conn.rollback();
+                    } catch (SQLException ex) {
+                        printSQLErrorMessage(e, "Rollback failed");
+                    }
+                } finally {
+                    try {
+                        System.out.println("Resetting default commit behavior");
+                        conn.setAutoCommit(true);
+                    } catch (SQLException e) {
+                        printSQLErrorMessage(e, "Could not reset Autocommit");
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            printSQLErrorMessage(e, "Error in SQL Statement");
+        }
     }
 }

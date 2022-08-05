@@ -84,7 +84,12 @@ public class QueryStringBuilder {
             ALBUM_SONG_COLUMN + ", " + TRACK_SONG_COLUMN + " FROM " + ARTISTS_SONG_VIEW +
             " WHERE " + TITLE_SONG_COLUMN + "=?";
 
-
+    public static final String INSERT_ARTIST = "INSERT INTO " + ARTISTS_TABLE + "(" + NAME_ARTIST_COLUMN + ") VALUES(?)";
+    public static final String INSERT_ALBUM = "INSERT INTO " + ALBUMS_TABLE + "(" + NAME_ALBUM_COLUMN + ", " + ARTIST_ALBUM_COLUMN + ") VALUES(?, ?)";
+    public static final String INSERT_SONG = "INSERT INTO " + SONGS_TABLE + "(" + TRACK_SONG_COLUMN + ", " + TITLE_SONG_COLUMN + ", " + ALBUM_SONG_COLUMN +  ") VALUES(?, ?, ?)";
+    public static final String QUERY_ARTISTS = "SELECT " + ID_ARTIST_COLUMN + " FROM " + ARTISTS_TABLE + " WHERE " + NAME_ARTIST_COLUMN + "=?";
+    public static final String QUERY_ALBUM = "SELECT " + ID_ALBUM_COLUMN + " FROM " + ALBUMS_TABLE + " WHERE " + NAME_ALBUM_COLUMN + "=?";
+    public static final String QUERY_SONG = "SELECT " + ID_SONG_COLUMN + " FROM " + SONGS_TABLE + " WHERE " + TITLE_SONG_COLUMN + "=?";
     /**
      * Methods
      */
