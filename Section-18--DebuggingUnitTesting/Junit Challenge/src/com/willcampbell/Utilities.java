@@ -2,8 +2,13 @@ package com.willcampbell;
 
 public class Utilities {
     // Returns char array containing every nth char - when sourceArray.length < n, returns sourceArray
-    public char[] everyNthChar(char[]sourceArray, int n){
-        if(sourceArray == null || sourceArray.length < n) {
+
+
+    public Utilities() {
+    }
+
+    public char[] everyNthChar(char[] sourceArray, int n) {
+        if (sourceArray == null || sourceArray.length < n) {
             return sourceArray;
         }
 
@@ -11,7 +16,7 @@ public class Utilities {
         char[] result = new char[returnedLength];
         int index = 0;
 
-        for(int i = n-1; i<sourceArray.length;i+=n){
+        for (int i = n - 1; i < sourceArray.length; i += n) {
             result[index++] = sourceArray[i];
         }
 
@@ -25,12 +30,12 @@ public class Utilities {
     // "ABCBDEEF" -> "ABCBDEF"  -- the to B's are not next to each other, so they are not removed
     public String removePairs(String source) {
         // If length < 2 no pairs
-        if(source.length()<2) return source;
+        if (source == null || source.length() < 2) return source;
         StringBuilder sb = new StringBuilder();
         char[] string = source.toCharArray();
-
-        for (int i=0; i<string.length;i++) {
-            if(string[i] != string[i++]) {
+        sb.append(string[0]);
+        for (int i = 1; i < string.length; i++) {
+            if (string[i-1] != string[i]) {
                 sb.append(string[i]);
             }
         }
@@ -39,11 +44,11 @@ public class Utilities {
 
     // perform a conversion based on some internal business rule.
     public int converter(int a, int b) {
-return a/b+a*30-2;
+        return a / b + a * 30 - 2;
     }
 
     public String nullIfOddLength(String source) {
-        if(source.length() % 2 == 0) return source;
-        return null;
+        if (source == null || source.length() % 2 != 0) return null;
+        return source;
     }
 }
