@@ -8,24 +8,24 @@ import java.util.Set;
 public class Locations implements Map<Integer, Location> {
     private static final Map<Integer, Location> locations = new HashMap<>();
 
-    public static void main(String[] args) {
-        FileWriter locFile = null;
-        try {
-            locFile = new FileWriter("Locations.tst");
+    public static void main(String[] args) throws IOException{
+//        FileWriter locFile = null;
+//        try {
+//            locFile = new FileWriter("Locations.txt");
+//            for (Location location : locations.values()) {
+//                locFile.write(location.getLocationID() + ", " + location.getDescription() + "\n");
+//            }
+//        } finally {
+//            System.out.println("in finally block");
+//            System.out.println("attempting to close locfile");
+//            if(locFile!=null) locFile.close();
+//        }
+//        Doing the same thing as above but throws the first error not the error on close and uses less lines of code
+        try (FileWriter locFile = new FileWriter("locations.txt")) {
             for (Location location : locations.values()) {
                 locFile.write(location.getLocationID() + ", " + location.getDescription() + "\n");
             }
-        } catch (IOException e) {
-            System.out.println(e.getLocalizedMessage());
-            e.printStackTrace();
-        } finally {
-            try {
-                if(locFile!=null) locFile.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
-
     }
 
     static {
