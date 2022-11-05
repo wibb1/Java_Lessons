@@ -3,7 +3,7 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class Main {
-    private static Locations locations = new Locations();
+    private static final Locations locations = new Locations();
 
     public static void main(String[] args) {
         // Change the program to allow players to type full words, or phrases, then move to the
@@ -23,8 +23,8 @@ public class Main {
         vocabulary.put("WEST", "W");
         vocabulary.put("EAST", "E");
 
-
-        int loc = 1;
+        int loc = 64;
+//        int loc = 1;
         while (true) {
             System.out.println(locations.get(loc).getDescription());
 
